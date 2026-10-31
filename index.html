@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIRTHDAY PROTOCOL // SYSTEM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      background: #000;
+      color: #00ff41;
+      font-family: 'Share Tech Mono', monospace;
+      height: 100%;
+      overflow: hidden; /* penting biar tidak bisa scroll */
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .screen.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ========== INTRO ========== */
+    .intro-content {
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .intro-title {
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      text-shadow: 0 0 15px #00ff41;
+      margin-bottom: 30px;
+    }
+
+    .intro-status {
+      font-size: 0.95rem;
+      margin-bottom: 22px;
+      min-height: 24px;
+      opacity: 0.9;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #001a00;
+      border: 1px solid #00ff41;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #00ff41;
+      box-shadow: 0 0 12px #00ff41;
+      transition: width 0.25s linear;
+    }
+
+    .glitch-text {
+      font-size: 1.1rem;
+      margin-top: 12px;
+      text-shadow: 0 0 10px #00ff41;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    /* ========== MENU ========== */
+    .menu-box {
+      background: rgba(0, 20, 0, 0.88);
+      border: 1px solid #00ff41;
+      padding: 28px 22px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 0 25px rgba(0, 255, 65, 0.25);
+    }
+
+    .menu-box h1 {
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 6px;
+      text-shadow: 0 0 12px #00ff41;
+    }
+
+    .menu-box .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-bottom: 26px;
+    }
+
+    .menu-btn {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid #00ff41;
+      color: #00ff41;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 15px 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.2s;
+      letter-spacing: 1px;
+    }
+
+    .menu-btn:hover {
+      background: #00ff41;
+      color: #000;
+      box-shadow: 0 0 18px #00ff41;
+      padding-left: 24px;
+    }
+
+    .menu-btn span {
+      opacity: 0.55;
+      font-size: 0.8rem;
+      margin-right: 10px;
+    }
+
+    /* ========== HALAMAN KONTEN ========== */
+    .content-wrapper {
+      width: 100%;
+      max-width: 440px;
+      max-height: 100%;
+      overflow-y: auto;
+      padding: 20px 10px;
+    }
+
+    .header {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #00ff41;
+      margin-bottom: 22px;
+    }
+
+    .header h1 {
+      font-size: 1.4rem;
+      text-shadow: 0 0 12px #00ff41;
+      letter-spacing: 2px;
+    }
+
+    .header p {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+
+    .section {
+      background: rgba(0, 25, 0, 0.75);
+      border: 1px solid #00ff41;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.12);
+    }
+
+    .section h2 {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      border-left: 3px solid #00ff41;
+      padding-left: 10px;
+    }
+
+    .msg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .msg-item {
+      background: #001a00;
+      border: 1px solid #00ff41;
+      padding: 16px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: 0.2s;
+    }
+
+    .msg-item:hover {
+      background: #00ff41;
+      color: #000;
+    }
+
+    .reveal-box {
+      margin-top: 14px;
+      padding: 14px;
+      background: #000;
+      border: 1px dashed #00ff41;
+      min-height: 55px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      display: none;
+    }
+
+    .reveal-box.show {
+      display: block;
+    }
+
+    .letter {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .timeline-item {
+      border-left: 2px solid #00ff41;
+      padding: 0 0 16px 16px;
+      position: relative;
+      margin-left: 6px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      background: #00ff41;
+      border-radius: 50%;
+    }
+
+    .timeline-item h3 {
+      font-size: 0.9rem;
+      margin-bottom: 3px;
+    }
+
+    .timeline-item p {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .jar {
+      font-size: 3.3rem;
+      text-align: center;
+      cursor: pointer;
+      margin: 12px 0;
+      transition: 0.25s;
+    }
+
+    .jar:active {
+      transform: rotate(12deg) scale(1.08);
+    }
+
+    .jar-result {
+      text-align: center;
+      font-size: 0.92rem;
+      min-height: 48px;
+      padding: 12px;
+      border: 1px dashed #00ff41;
+      margin-top: 8px;
+    }
+
+    .btn {
+      background: transparent;
+      border: 1px solid #00ff41;
+      color: #00ff41;
+      font-family: inherit;
+      padding: 11px 18px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: 0.2s;
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      background: #00ff41;
+      color: #000;
+      box-shadow: 0 0 16px #00ff41;
+    }
+
+    .back-btn {
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-content">
+      <div class="intro-title">BIRTHDAY PROTOCOL</div>
+      <div class="intro-status" id="introStatus">Menginisialisasi sistem...</div>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="glitch-text" id="glitchText"></div>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="screen" id="screen-menu">
+    <div class="menu-box">
+      <h1>SISTEM BERHASIL DIBUKA</h1>
+      <div class="subtitle">Pilih bagian yang ingin diakses</div>
+
+      <button class="menu-btn" onclick="goTo('main')">
+        <span>01</span> HALAMAN UTAMA
+      </button>
+      <button class="menu-btn" onclick="goTo('pesan')">
+        <span>02</span> PESAN PESAN
+      </button>
+      <button class="menu-btn" onclick="goTo('surat')">
+        <span>03</span> SURAT 
+      </button>
+      <button class="menu-btn" onclick="goTo('log')">
+        <span>04</span> LOG PERJALANAN
+      </button>
+      <button class="menu-btn" onclick="goTo('generator')">
+        <span>05</span> GENERATOR PESAN
+      </button>
+    </div>
+  </div>
+
+  <!-- HALAMAN UTAMA -->
+  <div class="screen" id="screen-main">
+    <div class="content-wrapper">
+      <button class="btn back-btn" onclick="goTo('menu')">← KEMBALI KE MENU</button>
+      <div class="header">
+        <h1>SELAMAT ULANG TAHUN</h1>
+        <p>// PROTOCOL BERHASIL DIAKTIFKAN</p>
+      </div>
+      <div class="section">
+        <h2>SELAMAT</h2>
+        <p style="font-size:0.93rem; line-height:1.65;">
+          Di hari yang spesial ini, semoga segala kebaikan datang kepadamu.
+          Semoga umur panjang, kesehatan terjaga, dan semua harapan perlahan menjadi nyata.
+        </p>
+      </div>
+      <div class="section">
+        <h2>PESAN SINGKAT</h2>
+        <p style="font-size:0.9rem; line-height:1.6; opacity:0.9;">
+          Jangan pernah meremehkan dirimu sendiri.
+          Kamu sudah melalui banyak hal, dan kamu masih di sini.
+          Itu sudah cukup untuk disebut hebat.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESAN PESAN -->
+  <div class="screen" id="screen-pesan">
+    <div class="content-wrapper">
+      <button class="btn back-btn" onclick="goTo('menu')">← KEMBALI KE MENU</button>
+      <div class="section">
+        <h2>PESAN PESAN</h2>
+        <p style="font-size:0.8rem; opacity:0.7; margin-bottom:12px;">Ketuk ikon untuk membuka pesan</p>
+        <div class="msg-grid">
+          <div class="msg-item" onclick="showMsg(0)">💚</div>
+          <div class="msg-item" onclick="showMsg(1)">⚡</div>
+          <div class="msg-item" onclick="showMsg(2)">🔥</div>
+          <div class="msg-item" onclick="showMsg(3)">🌟</div>
+          <div class="msg-item" onclick="showMsg(4)">💻</div>
+          <div class="msg-item" onclick="showMsg(5)">🎯</div>
+        </div>
+        <div class="reveal-box" id="revealBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SURAT -->
+  <div class="screen" id="screen-surat">
+    <div class="content-wrapper">
+      <button class="btn back-btn" onclick="goTo('menu')">← KEMBALI KE MENU</button>
+      <div class="section">
+        <h2>SURAT DIGITAL</h2>
+        <div class="letter">
+Di hari yang spesial ini,
+aku cuma mau bilang satu hal sederhana:
+
+Terima kasih sudah jadi versi terbaik dari dirimu.
+Semoga di usia baru ini, semua doa yang kamu panjatkan perlahan menjadi kenyataan.
+
+Semoga kesehatan selalu menjagamu,
+rezeki datang dari arah yang tidak terduga,
+dan kebahagiaan datang tanpa harus dipaksa.
+
+Jangan pernah ragu sama kemampuanmu.
+Kamu lebih kuat dari yang kamu kira.
+
+Selamat ulang tahun.
+Semoga tahun ini jauh lebih baik dari sebelumnya.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="screen" id="screen-log">
+    <div class="content-wrapper">
+      <button class="btn back-btn" onclick="goTo('menu')">← KEMBALI KE MENU</button>
+      <div class="section">
+        <h2>LOG PERJALANAN</h2>
+        <div class="timeline-item">
+          <h3>Awal Segalanya</h3>
+          <p>Semua cerita besar selalu dimulai dari langkah kecil.</p>
+        </div>
+        <div class="timeline-item">
+          <h3>Momen yang Berarti</h3>
+          <p>Tawa, air mata, dan semua pelajaran di antaranya.</p>
+        </div>
+        <div class="timeline-item">
+          <h3>Hari Ini</h3>
+          <p>Hari di mana kamu bertambah usia, dan dunia masih beruntung memilikimu.</p>
+        </div>
+        <div class="timeline-item">
+          <h3>Yang Akan Datang</h3>
+          <p>Masih banyak halaman kosong yang menunggu untuk diisi.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATOR -->
+  <div class="screen" id="screen-generator">
+    <div class="content-wrapper">
+      <button class="btn back-btn" onclick="goTo('menu')">← KEMBALI KE MENU</button>
+      <div class="section">
+        <h2>GENERATOR PESAN</h2>
+        <p style="font-size:0.8rem; opacity:0.7; text-align:center;">Ketuk toples untuk mendapatkan pesan acak</p>
+        <div class="jar" onclick="generateMsg()">🏺</div>
+        <div class="jar-result" id="jarResult">Ketuk toples di atas...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Matrix Rain
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEF";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00ff41";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 40);
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Intro Animation
+    function startIntro() {
+      const statusEl = document.getElementById("introStatus");
+      const progressBar = document.getElementById("progressBar");
+      const glitchText = document.getElementById("glitchText");
+
+      const statusList = [
+        "Menginisialisasi sistem...",
+        "Memindai file terenkripsi...",
+        "Membuka protokol ulang tahun...",
+        "Menyiapkan antarmuka...",
+        "Hampir selesai..."
+      ];
+
+      let progress = 0;
+      let statusIndex = 0;
+
+      const interval = setInterval(() => {
+        progress += Math.random() * 11 + 7;
+        if (progress > 100) progress = 100;
+        progressBar.style.width = progress + "%";
+
+        if (progress > statusIndex * 18 && statusIndex < statusList.length) {
+          statusEl.textContent = statusList[statusIndex];
+          statusIndex++;
+        }
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          statusEl.textContent = "Berhasil!";
+          glitchText.textContent = "ACCESS GRANTED";
+          glitchText.style.opacity = "1";
+
+          // Langsung transisi ke menu (fade)
+          setTimeout(() => {
+            switchScreen("screen-menu");
+          }, 1200);
+        }
+      }, 260);
+    }
+
+    // Ganti layar dengan fade
+    function switchScreen(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function goTo(page) {
+      const map = {
+        menu: "screen-menu",
+        main: "screen-main",
+        pesan: "screen-pesan",
+        surat: "screen-surat",
+        log: "screen-log",
+        generator: "screen-generator"
+      };
+      switchScreen(map[page]);
+    }
+
+    // Pesan
+    const messages = [
+      "Semoga panjang umur dan selalu diberi kesehatan.",
+      "Di usia baru ini, semoga semua impianmu mulai terlihat jelas.",
+      "Jangan takut gagal. Setiap kesalahan adalah data berharga.",
+      "Kamu layak mendapatkan hari-hari yang lebih ringan.",
+      "Terus jadi versi yang lebih baik dari kemarin.",
+      "Selamat ulang tahun. Dunia masih butuh senyummu."
+    ];
+
+    function showMsg(index) {
+      const box = document.getElementById("revealBox");
+      box.textContent = messages[index];
+      box.classList.add("show");
+    }
+
+    // Generator
+    const randomMsgs = [
+      "Tawamu masih jadi antivirus terbaik buat hari yang berat.",
+      "Kamu tidak harus sempurna untuk pantas dicintai dan dihargai.",
+      "Tahun ini, izinkan dirimu tumbuh dengan tenang.",
+      "Semoga rezeki datang lewat pintu yang tidak kamu sangka.",
+      "Kamu sudah jauh lebih kuat dari versi dirimu yang dulu.",
+      "Jangan bandingkan prosesmu dengan orang lain. Fokus ke jalurmu sendiri.",
+      "Selamat ulang tahun. Semoga hatimu selalu punya alasan untuk bersyukur."
+    ];
+
+    function generateMsg() {
+      const result = document.getElementById("jarResult");
+      result.style.opacity = "0";
+      setTimeout(() => {
+        result.textContent = randomMsgs[Math.floor(Math.random() * randomMsgs.length)];
+        result.style.opacity = "1";
+      }, 180);
+    }
+
+    // Jalankan intro
+    window.onload = startIntro;
+  </script>
+</body>
+</html>
